@@ -21,14 +21,17 @@
       overflow-x:hidden;
     }
     a{color:inherit; text-decoration:none}
+    img{max-width:100%; height:auto; display:block}
     .wrap{max-width:1100px; margin:auto; padding:0 20px}
     header{position:sticky; top:0; z-index:60; backdrop-filter:saturate(1.1) blur(10px); background:linear-gradient(180deg, rgba(10,10,10,.85), rgba(10,10,10,.55)); border-bottom:1px solid var(--line)}
-    nav{display:flex; align-items:center; justify-content:space-between; gap:14px; height:64px}
+    nav{display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:64px; flex-wrap:wrap}
     .brand{display:flex; align-items:center; gap:10px}
-    .logo{width:34px; height:34px; border-radius:10px; background:conic-gradient(from 60deg, var(--accent), var(--accent2), var(--ok), var(--accent)); box-shadow:0 0 40px rgba(108,255,255,.25)}
+    .logo{width:34px; height:34px; border-radius:10px; background: url('logo.png') center/cover no-repeat, conic-gradient(from 60deg, var(--accent), var(--accent2), var(--ok), var(--accent)); box-shadow:0 0 40px rgba(108,255,255,.25)}
     .brand b{letter-spacing:.5px}
+    .nav{display:flex; gap:14px; flex-wrap:wrap}
     .nav a{opacity:.85}
     .nav a:hover{opacity:1}
+    .actions{display:flex; gap:10px}
     .btn{display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); cursor:pointer; transition:.25s transform, .25s filter, .25s background}
     .btn:hover{transform:translateY(-2px)}
     .btn.primary{border-color:transparent; background:linear-gradient(180deg, rgba(108,255,255,.25), rgba(108,255,255,.05)); box-shadow:0 10px 30px rgba(108,255,255,.15)}
@@ -52,6 +55,8 @@
 
     /* Grid and Cards */
     .grid{display:grid; gap:16px}
+    .grid.cols-3{grid-template-columns:1fr}
+    .grid.cols-2{grid-template-columns:1fr}
     @media(min-width:760px){ .grid.cols-3{grid-template-columns:repeat(3, 1fr)} }
     @media(min-width:760px){ .grid.cols-2{grid-template-columns:repeat(2, 1fr)} }
     .card{position:relative; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; overflow:hidden}
@@ -61,7 +66,6 @@
 
     /* Contract Box */
     .contract{display:flex; align-items:center; gap:8px; padding:12px 14px; border-radius:12px; background:var(--glass); font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow:auto}
-    .contract small{color:var(--muted)}
     .pill{padding:6px 10px; border-radius:10px; background:rgba(108,255,255,.12); border:1px solid rgba(108,255,255,.3); font-size:12px; letter-spacing:.4px}
 
     /* FAQ */
@@ -91,9 +95,34 @@
     /* Toast */
     .toast{position:fixed; left:50%; bottom:30px; transform:translateX(-50%); background:#111; border:1px solid var(--line); color:var(--ink); padding:10px 14px; border-radius:10px; z-index:80; opacity:0; transition:.25s opacity, .25s transform}
     .toast.show{opacity:1; transform:translateX(-50%) translateY(-8px)}
+
+    /* Loader */
+    #loader{position:fixed; inset:0; background:#0b0b0b; display:grid; place-items:center; z-index:100; transition:opacity .5s ease}
+    .loader-box{display:flex; flex-direction:column; align-items:center; gap:16px; width:min(420px, 90vw)}
+    .loader-logo{width:120px; height:120px; border-radius:22px; box-shadow:0 0 40px rgba(108,255,255,.25)}
+    .loader-bar{width:100%; height:10px; border-radius:999px; background:#1a1a1a; border:1px solid var(--line); overflow:hidden}
+    .loader-bar span{display:block; width:0%; height:100%; background:linear-gradient(90deg, var(--accent), var(--accent2), var(--ok)); transition:width .2s ease}
+    .loader-pct{font:600 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--muted)}
+
+    /* Small screen tweaks */
+    @media(max-width:720px){
+      .actions{width:100%; justify-content:center}
+      .nav{width:100%; justify-content:center}
+      .hero{min-height:70svh}
+      .contract{font-size:14px}
+    }
   </style>
 </head>
 <body>
+  <!-- Loader -->
+  <div id="loader" aria-label="Loading">
+    <div class="loader-box">
+      <img src="logo.png" alt="X-MEN logo" class="loader-logo"/>
+      <div class="loader-bar"><span id="loaderBar"></span></div>
+      <div class="loader-pct" id="loaderPct">0%</div>
+    </div>
+  </div>
+
   <header>
     <div class="wrap">
       <nav>
@@ -128,14 +157,13 @@
         <div class="cta">
           <a class="btn primary" id="btn-hero-buy" target="_blank" rel="noopener" href="https://x.flap.sh/">Buy</a>
           <a class="btn" id="btn-chart" target="_blank" rel="noopener" href="#">Chart</a>
-          <a class="btn" id="btn-twitter" target="_blank" rel="noopener" href="#">Twitter</a>
-          <a class="btn" id="btn-telegram" target="_blank" rel="noopener" href="#">Telegram</a>
+          <a class="btn" id="btn-twitter" target="_blank" rel="noopener" href="https://x.com/XMenXLayer">Twitter</a>
+          <a class="btn" id="btn-telegram" target="_blank" rel="noopener" href="https://t.me/XMenXLayer">Telegram</a>
         </div>
         <div style="height:18px"></div>
         <div class="contract" title="Click to copy">
           <span class="pill">Contract</span>
           <code id="contract">0x0000000000000000000000000000000000000000</code>
-          <small id="contractHint">replace after deploy</small>
         </div>
       </div>
       <canvas class="trail" id="trail"></canvas>
@@ -145,20 +173,10 @@
       <div class="wrap grid cols-2">
         <div class="card">
           <h2>What is X-MEN</h2>
-          <p class="muted">A meme token for pressing one button and watching the feed mutate. Minimal design, loud impact. No empty promises. Community steers what comes next.</p>
+          <p class="muted">Born to mutate your feed. X-MEN is a pure meme signal on X Layer: fast, loud, and community-driven. Press X, post harder, let the timeline evolve.</p>
+          <p class="muted">Short lore: a glitch in the chain split the X into countless shards. Holders gather shards, the meme grows stronger, and the internet remembers who pressed X first.</p>
           <div style="height:12px"></div>
           <div class="badge">Easter egg: press <span class="kbd">↑ ↑ ↓ ↓ ← → ← → B A</span></div>
-        </div>
-        <div class="card">
-          <h2>Interactions</h2>
-          <ul class="muted" style="margin:0; padding-left:18px">
-            <li>Cursor trail and mutant particles</li>
-            <li>Parallax and physical card tilt</li>
-            <li>One‑click Mutant Mode</li>
-            <li>Double‑click X confetti</li>
-          </ul>
-          <div style="height:14px"></div>
-          <button class="btn" id="btn-mutant">Toggle Mutant</button>
         </div>
       </div>
     </section>
@@ -174,7 +192,7 @@
         </div>
         <div class="card">
           <h2>Tokenomics</h2>
-          <p class="muted">No taxes, no tricks. Community distribution. Update the exact numbers here right after launch.</p>
+          <p class="muted">No taxes, no tricks. Community distribution. Update exact numbers here after launch.</p>
         </div>
         <div class="card">
           <h2>Official Links</h2>
@@ -200,8 +218,8 @@
       <div class="wrap">
         <h2>Quick Answers</h2>
         <div class="grid cols-2">
-          <details><summary>When is the contract</summary><p>As soon as deploy confirms. Replace it at the top and in the site links.</p></details>
-          <details><summary>Are there taxes</summary><p>Define in the contract. If zero, keep it simple and say so here.</p></details>
+          <details><summary>Contract</summary><p>Displayed above once deployed. Update the address here right after deploy.</p></details>
+          <details><summary>Taxes</summary><p>Define in the contract. If zero, keep it simple and say so here.</p></details>
           <details><summary>How to buy</summary><p>Use the Buy buttons which link to x.flap.sh and to the DEX once the pair exists.</p></details>
           <details><summary>Utility</summary><p>Meme first. Community decides integrations later.</p></details>
         </div>
@@ -227,15 +245,15 @@
   <script>
     // ====== QUICK CONFIG ======
     const CONFIG = {
-      CONTRACT: "0x0000000000000000000000000000000000000000", // TODO replace after deploy
-      TWITTER: "#", // TODO
-      TELEGRAM: "#", // TODO
-      CHART: "#", // TODO Dexscreener or similar
-      EXPLORER: "#", // TODO X Layer explorer link to the contract
-      DEX: "#" // TODO DEX link after creating the pair
+      CONTRACT: "0x0000000000000000000000000000000000000000",
+      TWITTER: "https://x.com/XMenXLayer",
+      TELEGRAM: "https://t.me/XMenXLayer",
+      CHART: "#",
+      EXPLORER: "#",
+      DEX: "#"
     };
 
-    // Allow URL param overrides like ?contract=0x...&twitter=...
+    // Allow URL overrides like ?contract=0x...&twitter=...
     (function urlOverrides(){
       const q = new URLSearchParams(location.search);
       if(q.has('contract')) CONFIG.CONTRACT = q.get('contract');
@@ -253,20 +271,36 @@
       document.getElementById('btn-copy').onclick = copyContract;
       document.getElementById('btn-hero-buy').href = 'https://x.flap.sh/';
       document.getElementById('btn-buy').href = 'https://x.flap.sh/';
+      document.getElementById('btn-twitter').href = CONFIG.TWITTER;
+      document.getElementById('btn-telegram').href = CONFIG.TELEGRAM;
       if(CONFIG.CHART !== '#') document.getElementById('btn-chart').href = CONFIG.CHART;
-      if(CONFIG.TWITTER !== '#') document.getElementById('btn-twitter').href = CONFIG.TWITTER;
-      if(CONFIG.TELEGRAM !== '#') document.getElementById('btn-telegram').href = CONFIG.TELEGRAM;
       if(CONFIG.EXPLORER !== '#') document.getElementById('link-scan').href = CONFIG.EXPLORER;
       if(CONFIG.DEX !== '#') document.getElementById('link-dex').href = CONFIG.DEX;
       document.getElementById('year').textContent = new Date().getFullYear();
-      document.getElementById('contractHint').textContent = CONFIG.CONTRACT.includes('0000') ? 'replace after deploy' : 'click to copy';
     }
 
     function copyContract(e){
       e && e.preventDefault();
-      const text = CONFIG.CONTRACT;
-      navigator.clipboard.writeText(text).then(()=> toast('Contract copied'));
+      navigator.clipboard.writeText(CONFIG.CONTRACT).then(()=> toast('Contract copied'));
     }
+
+    // ====== Loader logic ======
+    const loader = document.getElementById('loader');
+    const bar = document.getElementById('loaderBar');
+    const pctEl = document.getElementById('loaderPct');
+    let pct = 0; let tick;
+    function step(){
+      pct = Math.min(99, pct + (2 + Math.random()*6));
+      bar.style.width = pct + '%';
+      pctEl.textContent = Math.floor(pct) + '%';
+      tick = requestAnimationFrame(step);
+    }
+    step();
+    addEventListener('load', ()=>{
+      cancelAnimationFrame(tick);
+      pct = 100; bar.style.width = '100%'; pctEl.textContent = '100%';
+      setTimeout(()=>{ loader.style.opacity = '0'; setTimeout(()=> loader.remove(), 500); }, 200);
+    });
 
     // ====== Scroll progress ======
     const progress = document.getElementById('progress');
@@ -280,28 +314,22 @@
     const trail = document.getElementById('trail');
     const ctx = trail.getContext('2d');
     const DPR = Math.max(1, window.devicePixelRatio || 1);
-    let W = 0, H = 0; let points = [];
     function resize(){
-      W = trail.width = innerWidth * DPR;
-      H = trail.height = innerHeight * DPR;
-      trail.style.width = innerWidth + 'px';
-      trail.style.height = innerHeight + 'px';
-      ctx.setTransform(1,0,0,1,0,0);
-      ctx.scale(DPR, DPR);
+      trail.width = innerWidth * DPR; trail.height = innerHeight * DPR;
+      trail.style.width = innerWidth + 'px'; trail.style.height = innerHeight + 'px';
+      ctx.setTransform(1,0,0,1,0,0); ctx.scale(DPR, DPR);
     }
     resize(); addEventListener('resize', resize);
-    addEventListener('mousemove', e=>{ points.push({x:e.clientX, y:e.clientY, life:1}); });
+    const points = [];
+    addEventListener('mousemove', e=> points.push({x:e.clientX, y:e.clientY, life:1}));
     function loop(){
       ctx.clearRect(0,0, innerWidth, innerHeight);
       for(let i=points.length-1;i>=0;i--){
-        const p = points[i];
-        const r = 6 * p.life; p.life -= 0.02;
+        const p = points[i]; const r = 6 * p.life; p.life -= 0.02;
         if(p.life <= 0){ points.splice(i,1); continue; }
         ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2);
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
-        g.addColorStop(0,'rgba(255,255,255,.9)');
-        g.addColorStop(.5,'rgba(108,255,255,.35)');
-        g.addColorStop(1,'rgba(108,255,255,0)');
+        g.addColorStop(0,'rgba(255,255,255,.9)'); g.addColorStop(.5,'rgba(108,255,255,.35)'); g.addColorStop(1,'rgba(108,255,255,0)');
         ctx.fillStyle = g; ctx.fill();
       }
       requestAnimationFrame(loop);
@@ -313,25 +341,21 @@
     function spawnXs(){
       for(let i=0;i<22;i++){
         const el = document.createElement('div');
-        el.className = 'xitem';
-        el.textContent = 'X';
-        el.style.left = Math.random()*100 + '%';
-        el.style.top = Math.random()*100 + '%';
-        el.style.fontSize = (Math.random()*100 + 40) + 'px';
-        el.style.transform = `rotate(${Math.random()*360}deg)`;
+        el.className = 'xitem'; el.textContent = 'X';
+        el.style.left = Math.random()*100 + '%'; el.style.top = Math.random()*100 + '%';
+        el.style.fontSize = (Math.random()*100 + 40) + 'px'; el.style.transform = `rotate(${Math.random()*360}deg)`;
         xs.appendChild(el);
       }
     }
     spawnXs();
 
-    // ====== Tilt effect on cards ======
+    // ====== Card tilt ======
     const tiltCards = Array.from(document.querySelectorAll('.card'));
     tiltCards.forEach(card=>{
       card.addEventListener('mousemove', e=>{
         const r = card.getBoundingClientRect();
         const x = e.clientX - r.left, y = e.clientY - r.top;
-        const rx = ((y / r.height) - .5) * -8;
-        const ry = ((x / r.width) - .5) * 8;
+        const rx = ((y / r.height) - .5) * -8; const ry = ((x / r.width) - .5) * 8;
         card.style.transform = `perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg)`;
       });
       card.addEventListener('mouseleave', ()=> card.style.transform = 'perspective(700px) rotateX(0) rotateY(0)');
@@ -340,17 +364,12 @@
     // ====== Confetti X ======
     function confetti(){
       for(let i=0;i<80;i++){
-        const s = document.createElement('div');
-        s.textContent = 'X'; s.style.position='fixed'; s.style.left = Math.random()*100 + 'vw'; s.style.top = '-10vh'; s.style.fontWeight='900'; s.style.opacity='.9';
+        const s = document.createElement('div'); s.textContent = 'X'; s.style.position='fixed';
+        s.style.left = Math.random()*100 + 'vw'; s.style.top = '-10vh'; s.style.fontWeight='900'; s.style.opacity='.9';
         s.style.fontSize = (12 + Math.random()*28) + 'px'; s.style.color = 'rgba(108,255,255,.9)'; s.style.pointerEvents='none'; s.style.zIndex='65';
         document.body.appendChild(s);
-        const tx = (Math.random()*2-1) * 30;
-        const rot = (Math.random()*720-360);
-        const dur = 800 + Math.random()*900;
-        s.animate([
-          { transform:`translate(0,0) rotate(0deg)` },
-          { transform:`translate(${tx}vw, 100vh) rotate(${rot}deg)` }
-        ], { duration: dur, easing: 'cubic-bezier(.2,.7,.2,1)' }).onfinish = ()=> s.remove();
+        const tx = (Math.random()*2-1) * 30; const rot = (Math.random()*720-360); const dur = 800 + Math.random()*900;
+        s.animate([{ transform:`translate(0,0) rotate(0deg)` },{ transform:`translate(${tx}vw, 100vh) rotate(${rot}deg)` }], { duration: dur, easing: 'cubic-bezier(.2,.7,.2,1)' }).onfinish = ()=> s.remove();
       }
     }
     document.getElementById('btn-confetti').onclick = confetti;
@@ -368,10 +387,6 @@
         buffer = [];
       }
     });
-    document.getElementById('btn-mutant').onclick = ()=>{
-      document.documentElement.classList.toggle('mutant');
-      toast('Mutant Mode toggled');
-    };
 
     // ====== Roadmap persistence ======
     const checks = document.querySelectorAll('.check');
