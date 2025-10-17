@@ -104,9 +104,26 @@
     .loader-bar span{display:block; width:0%; height:100%; background:linear-gradient(90deg, var(--accent), var(--accent2), var(--ok)); transition:width .2s ease}
     .loader-pct{font:600 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--muted)}
 
+    /*/* Video Card */
+    .video-card{display:flex; flex-direction:column; gap:10px}
+    .video-shell{position:relative; border-radius:16px; overflow:hidden}
+    .video-shell::before{content:""; position:absolute; inset:0; padding:2px; border-radius:16px; background:conic-gradient(from 0deg, var(--accent), var(--accent2), var(--ok), var(--accent));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; animation: spin 6s linear infinite; pointer-events:none}
+    @keyframes spin{to{transform:rotate(1turn)}}
+    .video-shell video{display:block; width:100%; height:auto; border-radius:14px; background:#000}
+    .video-overlay{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:grid; place-items:center; width:64px; height:64px; border-radius:999px; border:1px solid var(--line);
+      background:rgba(0,0,0,.35); backdrop-filter: blur(6px); font:700 18px/1 ui-sans-serif, system-ui; color:var(--ink); opacity:1; transition:.2s opacity, .2s transform}
+    .video-shell.playing .video-overlay{opacity:0; transform:translate(-50%,-50%) scale(.9)}
+    .video-help{color:var(--muted); font-size:14px}
+
     /* Small screen tweaks */
     @media(max-width:720px){
       .actions{width:100%; justify-content:center}
+      .nav{width:100%; justify-content:center}
+      .hero{min-height:70svh}
+      .contract{font-size:14px}
+    }
       .nav{width:100%; justify-content:center}
       .hero{min-height:70svh}
       .contract{font-size:14px}
@@ -153,7 +170,7 @@
         <h1 class="title" aria-label="X MEN">
           <span class="x">X</span>-MEN
         </h1>
-        <p class="subtitle">X-MEN: The Meme Mutation</p>
+        <p class="subtitle">Minimalist meme. Maximum interaction. No fluff.</p>
         <div class="cta">
           <a class="btn primary" id="btn-hero-buy" target="_blank" rel="noopener" href="https://x.flap.sh/">Buy</a>
           <a class="btn" id="btn-chart" target="_blank" rel="noopener" href="#">Chart</a>
@@ -178,6 +195,13 @@
           <div style="height:12px"></div>
           <div class="badge">Easter egg: press <span class="kbd">↑ ↑ ↓ ↓ ← → ← → B A</span></div>
         </div>
+        <div class="card video-card">
+          <div class="video-shell" id="aboutVideoShell">
+            <video id="aboutVideo" src="video.mp4" muted playsinline loop preload="metadata" poster="logo.png"></video>
+            <button class="video-overlay" id="videoToggle" aria-label="Play/Pause" title="Play/Pause">▶</button>
+          </div>
+          <div class="video-help">Tip: click to play/pause. Sound is muted by default.</div>
+        </div>
       </div>
     </section>
 
@@ -192,7 +216,7 @@
         </div>
         <div class="card">
           <h2>Tokenomics</h2>
-          <p class="muted">No taxes, no tricks.</p>
+          <p class="muted">No taxes, no tricks. Community distribution. Update exact numbers here after launch.</p>
         </div>
         <div class="card">
           <h2>Official Links</h2>
@@ -218,9 +242,9 @@
       <div class="wrap">
         <h2>Quick Answers</h2>
         <div class="grid cols-2">
-          <details><summary>Contract</summary><p>Coming</p></details>
-          <details><summary>Taxes</summary><p>Zero</p></details>
-          <details><summary>How to buy</summary><p>Coming</p></details>
+          <details><summary>Contract</summary><p>Displayed above once deployed. Update the address here right after deploy.</p></details>
+          <details><summary>Taxes</summary><p>Define in the contract. If zero, keep it simple and say so here.</p></details>
+          <details><summary>How to buy</summary><p>Use the Buy buttons which link to x.flap.sh and to the DEX once the pair exists.</p></details>
           <details><summary>Utility</summary><p>Meme first. Community decides integrations later.</p></details>
         </div>
       </div>
@@ -409,6 +433,27 @@
       toastEl.textContent = msg; toastEl.classList.add('show');
       clearTimeout(toastTimer); toastTimer = setTimeout(()=> toastEl.classList.remove('show'), 1800);
     }
+
+    // ====== Video interactions ======
+    (function setupVideo(){
+      const shell = document.getElementById('aboutVideoShell');
+      const v = document.getElementById('aboutVideo');
+      const btn = document.getElementById('videoToggle');
+      if(!v) return;
+      v.muted = true; v.playsInline = true;
+      const play = ()=>{ v.play().catch(()=>{}); shell.classList.add('playing'); btn.textContent='⏸'; };
+      const pause = ()=>{ v.pause(); shell.classList.remove('playing'); btn.textContent='▶'; };
+      const toggle = ()=> v.paused ? play() : pause();
+      btn.addEventListener('click', toggle);
+      shell.addEventListener('click', e=>{ if(e.target === v) toggle(); });
+      shell.addEventListener('mouseenter', ()=>{ if(matchMedia('(pointer:fine)').matches) play(); });
+      shell.addEventListener('mouseleave', ()=>{ if(matchMedia('(pointer:fine)').matches) pause(); });
+      v.addEventListener('play', ()=> shell.classList.add('playing'));
+      v.addEventListener('pause', ()=> shell.classList.remove('playing'));
+      // Autoplay when visible (mobile-friendly)
+      const io = new IntersectionObserver(([ent])=>{ if(!ent) return; if(ent.isIntersecting) play(); else pause(); }, { threshold:.6 });
+      io.observe(v);
+    })();
 
     // ====== Init ======
     document.getElementById('year').textContent = new Date().getFullYear();
