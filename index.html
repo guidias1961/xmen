@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>X-MEN • Meme Token on X Layer</title>
+  <meta name="description" content="X-MEN is a minimalist, super‑interactive meme token on X Layer, launched via x.flap.sh." />
+  <meta name="theme-color" content="#0a0a0a" />
+  <style>
+    :root{
+      --bg:#0a0a0a; --ink:#e7e7e7; --muted:#9aa0a6; --accent:#6cf; --accent2:#f0f; --ok:#00ff95; --warn:#ffb300; --err:#ff5a6e;
+      --card:#121212; --glass:rgba(255,255,255,.06); --line:rgba(255,255,255,.12);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font:500 16px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+      color:var(--ink); background:radial-gradient(1200px 800px at 10% -10%, rgba(108,255,255,.08), transparent),
+                         radial-gradient(1000px 600px at 110% 10%, rgba(255,0,255,.07), transparent),
+                         radial-gradient(800px 800px at 50% 120%, rgba(0,255,149,.06), transparent), var(--bg);
+      overflow-x:hidden;
+    }
+    a{color:inherit; text-decoration:none}
+    .wrap{max-width:1100px; margin:auto; padding:0 20px}
+    header{position:sticky; top:0; z-index:60; backdrop-filter:saturate(1.1) blur(10px); background:linear-gradient(180deg, rgba(10,10,10,.85), rgba(10,10,10,.55)); border-bottom:1px solid var(--line)}
+    nav{display:flex; align-items:center; justify-content:space-between; gap:14px; height:64px}
+    .brand{display:flex; align-items:center; gap:10px}
+    .logo{width:34px; height:34px; border-radius:10px; background:conic-gradient(from 60deg, var(--accent), var(--accent2), var(--ok), var(--accent)); box-shadow:0 0 40px rgba(108,255,255,.25)}
+    .brand b{letter-spacing:.5px}
+    .nav a{opacity:.85}
+    .nav a:hover{opacity:1}
+    .btn{display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); cursor:pointer; transition:.25s transform, .25s filter, .25s background}
+    .btn:hover{transform:translateY(-2px)}
+    .btn.primary{border-color:transparent; background:linear-gradient(180deg, rgba(108,255,255,.25), rgba(108,255,255,.05)); box-shadow:0 10px 30px rgba(108,255,255,.15)}
+    .btn.ghost{background:transparent}
+
+    /* HERO */
+    .hero{position:relative; min-height:82svh; display:grid; place-items:center; text-align:center}
+    .hero .title{font-weight:900; letter-spacing:1px; line-height:1.05; font-size:clamp(44px, 8vw, 120px); margin:16px 0; text-transform:uppercase}
+    .title .x{display:inline-block; position:relative}
+    .title .x::after{content:""; position:absolute; inset:-8px; border-radius:18px; background:conic-gradient(from 0deg, rgba(108,255,255,.35), rgba(255,0,255,.25), rgba(0,255,149,.25), rgba(108,255,255,.35)); filter:blur(18px); z-index:-1}
+    .subtitle{color:var(--muted)}
+    .cta{margin-top:26px; display:flex; flex-wrap:wrap; gap:12px; justify-content:center}
+
+    /* Progress bar */
+    .progress{height:3px; background:linear-gradient(90deg, var(--accent), var(--accent2), var(--ok)); width:0%; transition:width .1s linear}
+
+    /* Sections */
+    section{padding:80px 0; border-top:1px solid var(--line)}
+    h2{font-size:clamp(26px, 3.6vw, 42px); margin:0 0 18px 0}
+    p.muted{color:var(--muted)}
+
+    /* Grid and Cards */
+    .grid{display:grid; gap:16px}
+    @media(min-width:760px){ .grid.cols-3{grid-template-columns:repeat(3, 1fr)} }
+    @media(min-width:760px){ .grid.cols-2{grid-template-columns:repeat(2, 1fr)} }
+    .card{position:relative; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; overflow:hidden}
+    .card:hover{border-color:rgba(108,255,255,.45)}
+
+    .badge{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px dashed var(--line); font-size:13px; color:var(--muted)}
+
+    /* Contract Box */
+    .contract{display:flex; align-items:center; gap:8px; padding:12px 14px; border-radius:12px; background:var(--glass); font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow:auto}
+    .contract small{color:var(--muted)}
+    .pill{padding:6px 10px; border-radius:10px; background:rgba(108,255,255,.12); border:1px solid rgba(108,255,255,.3); font-size:12px; letter-spacing:.4px}
+
+    /* FAQ */
+    details{border:1px solid var(--line); border-radius:14px; padding:14px 16px; background:var(--card)}
+    summary{cursor:pointer; font-weight:700}
+    details p{margin:10px 0 0}
+
+    /* Footer */
+    footer{padding:70px 0 60px; text-align:center; color:var(--muted); border-top:1px solid var(--line)}
+
+    /* Cursor trail */
+    .trail{position:fixed; inset:0; pointer-events:none; z-index:40}
+
+    /* Floating Xs */
+    .xs{position:absolute; inset:0; pointer-events:none; z-index:0; overflow:hidden}
+    .xitem{position:absolute; font-weight:900; opacity:.08; user-select:none}
+
+    /* Mutant mode */
+    .mutant .title .x::after{filter:blur(24px)}
+
+    .kbd{font:600 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:rgba(255,255,255,.06); border:1px solid var(--line); padding:2px 6px; border-radius:6px}
+
+    /* Tiny helper UI */
+    .floating{position:fixed; right:16px; bottom:16px; z-index:70; display:flex; gap:10px; flex-direction:column}
+    .floating .btn{padding:10px 12px; border-radius:12px}
+
+    /* Toast */
+    .toast{position:fixed; left:50%; bottom:30px; transform:translateX(-50%); background:#111; border:1px solid var(--line); color:var(--ink); padding:10px 14px; border-radius:10px; z-index:80; opacity:0; transition:.25s opacity, .25s transform}
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(-8px)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <nav>
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <b>X-MEN</b>
+        </div>
+        <div class="nav" role="navigation" aria-label="primary">
+          <a href="#about">About</a>
+          <a href="#token">Token</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div class="actions">
+          <a class="btn ghost" id="btn-copy" href="#">Copy contract</a>
+          <a class="btn primary" id="btn-buy" target="_blank" rel="noopener" href="https://x.flap.sh/">Buy</a>
+        </div>
+      </nav>
+    </div>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="xs" aria-hidden="true" id="floatingXs"></div>
+      <div class="wrap">
+        <div class="badge">Launched via <b>x.flap.sh</b> on <b>X Layer</b></div>
+        <h1 class="title" aria-label="X MEN">
+          <span class="x">X</span>-MEN
+        </h1>
+        <p class="subtitle">Minimalist meme. Maximum interaction. No fluff.</p>
+        <div class="cta">
+          <a class="btn primary" id="btn-hero-buy" target="_blank" rel="noopener" href="https://x.flap.sh/">Buy</a>
+          <a class="btn" id="btn-chart" target="_blank" rel="noopener" href="#">Chart</a>
+          <a class="btn" id="btn-twitter" target="_blank" rel="noopener" href="#">Twitter</a>
+          <a class="btn" id="btn-telegram" target="_blank" rel="noopener" href="#">Telegram</a>
+        </div>
+        <div style="height:18px"></div>
+        <div class="contract" title="Click to copy">
+          <span class="pill">Contract</span>
+          <code id="contract">0x0000000000000000000000000000000000000000</code>
+          <small id="contractHint">replace after deploy</small>
+        </div>
+      </div>
+      <canvas class="trail" id="trail"></canvas>
+    </section>
+
+    <section id="about">
+      <div class="wrap grid cols-2">
+        <div class="card">
+          <h2>What is X-MEN</h2>
+          <p class="muted">A meme token for pressing one button and watching the feed mutate. Minimal design, loud impact. No empty promises. Community steers what comes next.</p>
+          <div style="height:12px"></div>
+          <div class="badge">Easter egg: press <span class="kbd">↑ ↑ ↓ ↓ ← → ← → B A</span></div>
+        </div>
+        <div class="card">
+          <h2>Interactions</h2>
+          <ul class="muted" style="margin:0; padding-left:18px">
+            <li>Cursor trail and mutant particles</li>
+            <li>Parallax and physical card tilt</li>
+            <li>One‑click Mutant Mode</li>
+            <li>Double‑click X confetti</li>
+          </ul>
+          <div style="height:14px"></div>
+          <button class="btn" id="btn-mutant">Toggle Mutant</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="token">
+      <div class="wrap grid cols-3">
+        <div class="card">
+          <h2>Token</h2>
+          <p class="muted">Name: X-MEN</p>
+          <p class="muted">Ticker: X-MEN</p>
+          <p class="muted">Network: X Layer</p>
+          <p class="muted">Contract: <span id="c-mini">0x0000...0000</span></p>
+        </div>
+        <div class="card">
+          <h2>Tokenomics</h2>
+          <p class="muted">No taxes, no tricks. Community distribution. Update the exact numbers here right after launch.</p>
+        </div>
+        <div class="card">
+          <h2>Official Links</h2>
+          <p><a id="link-flap" target="_blank" rel="noopener" href="https://x.flap.sh/">x.flap.sh</a></p>
+          <p><a id="link-scan" target="_blank" rel="noopener" href="#">Block Explorer</a></p>
+          <p><a id="link-dex" target="_blank" rel="noopener" href="#">DEX</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div class="wrap">
+        <h2>Meme Roadmap</h2>
+        <div class="grid cols-3">
+          <label class="card"><input type="checkbox" class="check" data-key="rm1" /> <b>Spawn</b><p class="muted">Launch on x.flap.sh, site live, socials ready.</p></label>
+          <label class="card"><input type="checkbox" class="check" data-key="rm2" /> <b>Mutate</b><p class="muted">Viral memes, collabs, creative raids.</p></label>
+          <label class="card"><input type="checkbox" class="check" data-key="rm3" /> <b>Dominate</b><p class="muted">Grow while the feed screams X.</p></label>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="wrap">
+        <h2>Quick Answers</h2>
+        <div class="grid cols-2">
+          <details><summary>When is the contract</summary><p>As soon as deploy confirms. Replace it at the top and in the site links.</p></details>
+          <details><summary>Are there taxes</summary><p>Define in the contract. If zero, keep it simple and say so here.</p></details>
+          <details><summary>How to buy</summary><p>Use the Buy buttons which link to x.flap.sh and to the DEX once the pair exists.</p></details>
+          <details><summary>Utility</summary><p>Meme first. Community decides integrations later.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>Nothing here is financial advice. Do your own research.</p>
+      <p style="margin-top:6px">© <span id="year"></span> X-MEN. Built for the internet.</p>
+    </div>
+  </footer>
+
+  <!-- Floating helpers -->
+  <div class="floating">
+    <button class="btn" id="btn-confetti">X Confetti</button>
+    <button class="btn" id="btn-top">Top</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ====== QUICK CONFIG ======
+    const CONFIG = {
+      CONTRACT: "0x0000000000000000000000000000000000000000", // TODO replace after deploy
+      TWITTER: "#", // TODO
+      TELEGRAM: "#", // TODO
+      CHART: "#", // TODO Dexscreener or similar
+      EXPLORER: "#", // TODO X Layer explorer link to the contract
+      DEX: "#" // TODO DEX link after creating the pair
+    };
+
+    // Allow URL param overrides like ?contract=0x...&twitter=...
+    (function urlOverrides(){
+      const q = new URLSearchParams(location.search);
+      if(q.has('contract')) CONFIG.CONTRACT = q.get('contract');
+      if(q.has('twitter')) CONFIG.TWITTER = q.get('twitter');
+      if(q.has('telegram')) CONFIG.TELEGRAM = q.get('telegram');
+      if(q.has('chart')) CONFIG.CHART = q.get('chart');
+      if(q.has('explorer')) CONFIG.EXPLORER = q.get('explorer');
+      if(q.has('dex')) CONFIG.DEX = q.get('dex');
+    })();
+
+    function applyConfig(){
+      const short = CONFIG.CONTRACT.slice(0,6) + "..." + CONFIG.CONTRACT.slice(-4);
+      document.getElementById('contract').textContent = CONFIG.CONTRACT;
+      document.getElementById('c-mini').textContent = short;
+      document.getElementById('btn-copy').onclick = copyContract;
+      document.getElementById('btn-hero-buy').href = 'https://x.flap.sh/';
+      document.getElementById('btn-buy').href = 'https://x.flap.sh/';
+      if(CONFIG.CHART !== '#') document.getElementById('btn-chart').href = CONFIG.CHART;
+      if(CONFIG.TWITTER !== '#') document.getElementById('btn-twitter').href = CONFIG.TWITTER;
+      if(CONFIG.TELEGRAM !== '#') document.getElementById('btn-telegram').href = CONFIG.TELEGRAM;
+      if(CONFIG.EXPLORER !== '#') document.getElementById('link-scan').href = CONFIG.EXPLORER;
+      if(CONFIG.DEX !== '#') document.getElementById('link-dex').href = CONFIG.DEX;
+      document.getElementById('year').textContent = new Date().getFullYear();
+      document.getElementById('contractHint').textContent = CONFIG.CONTRACT.includes('0000') ? 'replace after deploy' : 'click to copy';
+    }
+
+    function copyContract(e){
+      e && e.preventDefault();
+      const text = CONFIG.CONTRACT;
+      navigator.clipboard.writeText(text).then(()=> toast('Contract copied'));
+    }
+
+    // ====== Scroll progress ======
+    const progress = document.getElementById('progress');
+    document.addEventListener('scroll', ()=>{
+      const h = document.documentElement;
+      const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight) * 100;
+      progress.style.width = scrolled + '%';
+    });
+
+    // ====== Cursor Trail Canvas ======
+    const trail = document.getElementById('trail');
+    const ctx = trail.getContext('2d');
+    const DPR = Math.max(1, window.devicePixelRatio || 1);
+    let W = 0, H = 0; let points = [];
+    function resize(){
+      W = trail.width = innerWidth * DPR;
+      H = trail.height = innerHeight * DPR;
+      trail.style.width = innerWidth + 'px';
+      trail.style.height = innerHeight + 'px';
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.scale(DPR, DPR);
+    }
+    resize(); addEventListener('resize', resize);
+    addEventListener('mousemove', e=>{ points.push({x:e.clientX, y:e.clientY, life:1}); });
+    function loop(){
+      ctx.clearRect(0,0, innerWidth, innerHeight);
+      for(let i=points.length-1;i>=0;i--){
+        const p = points[i];
+        const r = 6 * p.life; p.life -= 0.02;
+        if(p.life <= 0){ points.splice(i,1); continue; }
+        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2);
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+        g.addColorStop(0,'rgba(255,255,255,.9)');
+        g.addColorStop(.5,'rgba(108,255,255,.35)');
+        g.addColorStop(1,'rgba(108,255,255,0)');
+        ctx.fillStyle = g; ctx.fill();
+      }
+      requestAnimationFrame(loop);
+    }
+    loop();
+
+    // ====== Floating Xs in hero ======
+    const xs = document.getElementById('floatingXs');
+    function spawnXs(){
+      for(let i=0;i<22;i++){
+        const el = document.createElement('div');
+        el.className = 'xitem';
+        el.textContent = 'X';
+        el.style.left = Math.random()*100 + '%';
+        el.style.top = Math.random()*100 + '%';
+        el.style.fontSize = (Math.random()*100 + 40) + 'px';
+        el.style.transform = `rotate(${Math.random()*360}deg)`;
+        xs.appendChild(el);
+      }
+    }
+    spawnXs();
+
+    // ====== Tilt effect on cards ======
+    const tiltCards = Array.from(document.querySelectorAll('.card'));
+    tiltCards.forEach(card=>{
+      card.addEventListener('mousemove', e=>{
+        const r = card.getBoundingClientRect();
+        const x = e.clientX - r.left, y = e.clientY - r.top;
+        const rx = ((y / r.height) - .5) * -8;
+        const ry = ((x / r.width) - .5) * 8;
+        card.style.transform = `perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      });
+      card.addEventListener('mouseleave', ()=> card.style.transform = 'perspective(700px) rotateX(0) rotateY(0)');
+    });
+
+    // ====== Confetti X ======
+    function confetti(){
+      for(let i=0;i<80;i++){
+        const s = document.createElement('div');
+        s.textContent = 'X'; s.style.position='fixed'; s.style.left = Math.random()*100 + 'vw'; s.style.top = '-10vh'; s.style.fontWeight='900'; s.style.opacity='.9';
+        s.style.fontSize = (12 + Math.random()*28) + 'px'; s.style.color = 'rgba(108,255,255,.9)'; s.style.pointerEvents='none'; s.style.zIndex='65';
+        document.body.appendChild(s);
+        const tx = (Math.random()*2-1) * 30;
+        const rot = (Math.random()*720-360);
+        const dur = 800 + Math.random()*900;
+        s.animate([
+          { transform:`translate(0,0) rotate(0deg)` },
+          { transform:`translate(${tx}vw, 100vh) rotate(${rot}deg)` }
+        ], { duration: dur, easing: 'cubic-bezier(.2,.7,.2,1)' }).onfinish = ()=> s.remove();
+      }
+    }
+    document.getElementById('btn-confetti').onclick = confetti;
+    document.addEventListener('dblclick', confetti);
+
+    // ====== Konami code -> Mutant Mode ======
+    const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    let buffer = [];
+    addEventListener('keydown', e=>{
+      buffer.push(e.key.length===1 ? e.key.toLowerCase() : e.key);
+      if(buffer.length > KONAMI.length) buffer.shift();
+      if(buffer.join(',') === KONAMI.join(',')){
+        document.documentElement.classList.toggle('mutant');
+        toast('Mutant Mode toggled');
+        buffer = [];
+      }
+    });
+    document.getElementById('btn-mutant').onclick = ()=>{
+      document.documentElement.classList.toggle('mutant');
+      toast('Mutant Mode toggled');
+    };
+
+    // ====== Roadmap persistence ======
+    const checks = document.querySelectorAll('.check');
+    checks.forEach(chk=>{
+      const key = 'xm_' + chk.dataset.key;
+      chk.checked = localStorage.getItem(key) === '1';
+      chk.addEventListener('change', ()=> localStorage.setItem(key, chk.checked ? '1' : '0'));
+    });
+
+    // ====== Top button ======
+    const btnTop = document.getElementById('btn-top');
+    btnTop.onclick = ()=> scrollTo({top:0, behavior:'smooth'});
+    addEventListener('scroll', ()=> btnTop.style.display = scrollY > 200 ? 'inline-flex' : 'none');
+    btnTop.style.display = 'none';
+
+    // ====== Toast ======
+    const toastEl = document.getElementById('toast');
+    let toastTimer = null;
+    function toast(msg){
+      toastEl.textContent = msg; toastEl.classList.add('show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(()=> toastEl.classList.remove('show'), 1800);
+    }
+
+    // ====== Init ======
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.querySelector('.contract').addEventListener('click', copyContract);
+    applyConfig();
+  </script>
+</body>
+</html>
+
